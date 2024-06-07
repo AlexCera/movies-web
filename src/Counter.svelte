@@ -8,13 +8,16 @@
     function handleClickDecrement() {
         counter--;
     }
+
+    /* Declaración reactiva */
+    $: isEvenOrOdd = counter % 2 === 0 ? "Número Par" : "Número Impar";
 </script>
 
 <div class="container-counter">
     <button on:click={handleClickDecrement} class="btn btn-decrement"
         >Quitar</button
     >
-    <span class="counter-value">{counter}</span>
+    <span class="counter-value">{counter} ({isEvenOrOdd})</span>
     <button on:click={handleClickIncrement} class="btn btn-increment"
         >Añadir</button
     >
