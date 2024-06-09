@@ -4,7 +4,6 @@
     const key = "422350ff";
     let movieSearch = "";
     let movies = [];
-    let loading = false;
 
     const handleInput = (e) => {
         movieSearch = e.target.value;
@@ -12,14 +11,18 @@
 
     /* declaración reactiva y fetching datos */
     const handleClick = () => {
-        loading = true;
-
-        fetch(`https://www.omdbapi.com/?s=${movieSearch}&apikey=${key}`)
-            .then((res) => res.json())
-            .then((apiResponse) => {
-                movies = apiResponse.Search || [];
-                loading = false;
-            });
+        movies = fetch(
+            `https://www.omdbapi.com/?s=${movieSearch}&apikey=${key}`,
+        )
+            .then((res) => {
+                if (!res.ok) {
+                    throw new Error(
+                        `An error occurred with the api request. (Code: ${res.status})`,
+                    );
+                }
+                return res.json();
+            })
+            .then((apiResponse) => apiResponse.Search || []);
     };
 </script>
 
@@ -35,11 +38,11 @@
     <button on:click={handleClick}>Buscar</button>
 </div>
 
-{#if loading}
+{#await movies}
     <strong>Buscando ...</strong>
-{:else}
+{:then movieList}
     <main>
-        {#each movies as { Title, Poster, Year }, i}
+        {#each movieList as { Title, Poster, Year }, i}
             <MovieComponent
                 index={i}
                 title={Title}
@@ -50,7 +53,12 @@
             <strong>No hemos encontrado resultados tu búsqueda</strong>
         {/each}
     </main>
-{/if}
+{:catch error}
+    <strong>
+        ❌ Ha ocurrido un error en este momento, vuelve a intentarlo. {error.message}
+        ❌</strong
+    >
+{/await}
 
 <style>
     .container {
